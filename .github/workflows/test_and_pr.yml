@@ -34,6 +34,10 @@ jobs:
       if: contains(github.ref, 'part-1')
       run: |
         echo "::set-env name=DEST_BRANCH::part-2-two"
+    - name: If branch is part-2
+      if: contains(github.ref, 'part-2')
+      run: |
+        echo "::set-env name=DEST_BRANCH::part-3-three"
     - name: check DEST_BRANCH
       run: echo "$DEST_BRANCH"
 
@@ -62,6 +66,6 @@ jobs:
         source_branch: ""                                                             # If blank, default: triggered branch
         destination_branch: ${{ needs.set-destination-branch.outputs.dest_branch }}   # If blank, default: master
         pr_title: "Pulling ${{ github.ref }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"    # Title of pull request
-        pr_body: ":robot: *An auto-generated PR*"                                     # Full markdown support, requires pr_title to be set
+        pr_body: "Update from ${{ github.ref }} :robot: *An auto-generated PR*"       # Full markdown support, requires pr_title to be set
         pr_label: "auto-pr,auto-merge"                                                # Comma-separated list (no spaces)
         github_token: ${{ steps.generate-token.outputs.token }}

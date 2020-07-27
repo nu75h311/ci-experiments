@@ -17,5 +17,5 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
         MERGE_LABELS: "auto-merge"
-        MERGE_COMMIT_MESSAGE: "pull-request-title"
+        MERGE_COMMIT_MESSAGE: "pull-request-description"
         MERGE_DELETE_BRANCH: "false"
