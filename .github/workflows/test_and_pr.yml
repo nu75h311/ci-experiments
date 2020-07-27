@@ -59,7 +59,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        ref: ${{ needs.set-destination-branch.outputs.dest_branch }}
+        ref: ${{ needs.set-destination-branch.outputs.dest_branch }}  
+    - name: check ref name
+      env:
+        REF_BRANCH: ${{ github.ref##*/ }}
+      run: echo "$REF_BRANCH"
     - name: Reset promotion branch
       run: |
         git fetch origin ${{ github.ref }}:${{ github.ref }}
