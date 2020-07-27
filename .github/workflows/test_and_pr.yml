@@ -23,7 +23,7 @@ jobs:
     name: Get ref branch name
     runs-on: ubuntu-latest
     outputs:
-      ref_branch: ${{ steps.getname.outputs.branch }}
+      ref_branch: ${{ steps.getname.outputs.ref_branch }}
     env:
       GITHUB_BRANCH: ${{ github.ref }}
     steps:
