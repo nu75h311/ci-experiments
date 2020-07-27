@@ -1,11 +1,11 @@
 name: Test and create PR
 on:
   push:
-    branches: 'part-1*'
+    branches: 'part-*'
 
 jobs:
 
-  build:
+  test:
     name: Maven test
     runs-on: ubuntu-latest
 
@@ -19,8 +19,30 @@ jobs:
     - name: Maven test
       run: mvn -B test --file pom.xml
 
+  set-destination-branch:
+    name: Set destination branch
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      dest_branch: ${{ steps.setdest.outputs.dest_branch }}
+    steps:
+    - name: Dump github context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: Identify destination branch
+      id: setdest
+      run: |
+        if [github.ref == "part-1-one"]; then
+          echo ::set-output name=dest_branch::"part-2-two"
+        fi        
+        if [github.ref == "part-2-two"]; then
+          echo ::set-output name=dest_branch::"master"
+        fi
+
   create-pull-request:
     name: Create pull request
+    needs: set-destination-branch
     runs-on: ubuntu-latest
     steps:
     - name: Generate app token
@@ -31,12 +53,16 @@ jobs:
         private_key: ${{ secrets.APP_PRIVATE_KEY }}
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Dump needs context
+      env:
+        NEEDS_CONTEXT: ${{ toJson(needs) }}
+      run: echo "$NEEDS_CONTEXT"
     - name: Create pull request
       uses: repo-sync/pull-request@v2
       with:
-        source_branch: ""                                       # If blank, default: triggered branch
-        destination_branch: "part-2-two"                        # If blank, default: master
-        pr_title: "Pulling ${{ github.ref }} into part-2-two"   # Title of pull request
-        pr_body: ":crown: *An automated PR*"                    # Full markdown support, requires pr_title to be set
-        pr_label: "auto-pr,auto-merge"                                     # Comma-separated list (no spaces)
+        source_branch: ""                                                             # If blank, default: triggered branch
+        destination_branch: ${{ needs.set-destination-branch.outputs.dest_branch }}   # If blank, default: master
+        pr_title: "Pulling ${{ github.ref }} into part-2-two"                         # Title of pull request
+        pr_body: ":robot: *An auto-generated PR*"                                     # Full markdown support, requires pr_title to be set
+        pr_label: "auto-pr,auto-merge"                                                # Comma-separated list (no spaces)
         github_token: ${{ steps.generate-token.outputs.token }}
