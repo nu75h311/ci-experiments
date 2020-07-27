@@ -19,6 +19,16 @@ jobs:
     - name: Maven test
       run: mvn -B test --file pom.xml
 
+  get-ref-branch-name:
+    name: Get ref branch name
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_BRANCH: ${{ github.ref }}
+    steps:
+    - name: Get only the name
+      run: |
+        echo "::set-output name=ref_branch::${GITHUB_BRANCH#refs/heads/}"
+
   set-destination-branch:
     name: Set destination branch
     needs: test
@@ -43,7 +53,9 @@ jobs:
 
   create-pull-request:
     name: Create pull request
-    needs: set-destination-branch
+    needs:
+      - get-ref-branch-name
+      - set-destination-branch
     runs-on: ubuntu-latest
     steps:
     - name: Generate app token
@@ -60,10 +72,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: ${{ needs.set-destination-branch.outputs.dest_branch }}  
-    - name: check ref name
-      env:
-        REF_BRANCH: ${{ github.ref##*/ }}
-      run: echo "$REF_BRANCH"
     - name: Reset promotion branch
       run: |
         git fetch origin ${{ github.ref }}:${{ github.ref }}
