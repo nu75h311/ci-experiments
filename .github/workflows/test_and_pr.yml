@@ -66,6 +66,6 @@ jobs:
         source_branch: ""                                                             # If blank, default: triggered branch
         destination_branch: ${{ needs.set-destination-branch.outputs.dest_branch }}   # If blank, default: master
         pr_title: "Pulling ${{ github.ref }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"    # Title of pull request
-        pr_body: "Update from ${{ github.ref }} :robot: *An auto-generated PR*"       # Full markdown support, requires pr_title to be set
+        pr_body: "Update from ${{ github.ref }} :robot: auto-generated"               # Full markdown support, requires pr_title to be set
         pr_label: "auto-pr,auto-merge"                                                # Comma-separated list (no spaces)
         github_token: ${{ steps.generate-token.outputs.token }}
