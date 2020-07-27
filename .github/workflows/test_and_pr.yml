@@ -19,11 +19,13 @@ jobs:
     - name: Maven test
       run: mvn -B test --file pom.xml
 
-  get-ref-branch-name:
-    name: Get ref branch name
+  set-destination-branch:
+    name: Set destination branch
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       ref_branch: ${{ steps.getname.outputs.ref_branch }}
+      dest_branch: ${{ env.DEST_BRANCH }}
     env:
       GITHUB_BRANCH: ${{ github.ref }}
     steps:
@@ -31,18 +33,6 @@ jobs:
       id: getname
       run: |
         echo "::set-output name=ref_branch::${GITHUB_BRANCH#refs/heads/}"
-
-  set-destination-branch:
-    name: Set destination branch
-    needs: test
-    runs-on: ubuntu-latest
-    outputs:
-      dest_branch: ${{ env.DEST_BRANCH }}
-    steps:
-    - name: Dump github context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
     - name: If branch is part-1
       if: contains(github.ref, 'part-1')
       run: |
@@ -77,14 +67,14 @@ jobs:
         ref: ${{ needs.set-destination-branch.outputs.dest_branch }}  
     - name: Reset promotion branch
       run: |
-        git fetch origin ${{ github.ref }}:${{ github.ref }}
-        git reset --hard ${{ github.ref }}
+        git fetch origin ${{ needs.set-destination-branch.outputs.ref_branch }}:${{ needs.set-destination-branch.outputs.ref_branch }}
+        git reset --hard ${{ needs.set-destination-branch.outputs.ref_branch }}
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ steps.generate-token.outputs.token }}
         branch: temp-promotion-branch
-        title: "Pulling ${{ github.ref }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"
-        body: "Update from ${{ github.ref }} :robot: auto-generated"
-        commit-message: "Update from ${{ github.ref }}"
+        title: "Pulling ${{ needs.set-destination-branch.outputs.ref_branch }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"
+        body: "Update from ${{ needs.set-destination-branch.outputs.ref_branch }} :robot: auto-generated"
+        commit-message: "Update from ${{ needs.set-destination-branch.outputs.ref_branch }}"
         labels: auto-pr, auto-merge
