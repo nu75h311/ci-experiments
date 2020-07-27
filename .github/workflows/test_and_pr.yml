@@ -41,6 +41,10 @@ jobs:
       if: contains(github.ref, 'part-2')
       run: |
         echo "::set-env name=DEST_BRANCH::part-3-three"
+    - name: If branch is part-3
+      if: contains(github.ref, 'part-3')
+      run: |
+        echo "::set-env name=DEST_BRANCH::master"
     - name: check DEST_BRANCH
       run: echo "$DEST_BRANCH"
 
@@ -72,7 +76,7 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ steps.generate-token.outputs.token }}
-        branch: temp-promotion-branch
+        branch: "temp-promotion-of-changes-in-${{ needs.set-destination-branch.outputs.ref_branch }}"
         title: "Pulling ${{ needs.set-destination-branch.outputs.ref_branch }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"
         body: "Update from ${{ needs.set-destination-branch.outputs.ref_branch }} :robot: auto-generated"
         commit-message: "Update from ${{ needs.set-destination-branch.outputs.ref_branch }}"
