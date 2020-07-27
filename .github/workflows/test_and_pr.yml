@@ -23,22 +23,21 @@ jobs:
     name: Set destination branch
     needs: test
     runs-on: ubuntu-latest
+    env:
+      DEST_BRANCH: master
     outputs:
-      dest_branch: ${{ steps.setdest.outputs.dest_branch }}
+      dest_branch: ${{ env.DEST_BRANCH }}
     steps:
     - name: Dump github context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
-    - name: Identify destination branch
-      id: setdest
+    - name: If branch is part-1
+      if: startsWith(github.ref, 'part-1')
       run: |
-        if [github.ref == "part-1-one"]; then
-          echo ::set-output name=dest_branch::"part-2-two"
-        fi        
-        if [github.ref == "part-2-two"]; then
-          echo ::set-output name=dest_branch::"master"
-        fi
+        echo "::set-env name=DEST_BRANCH::part-2-two"
+    - name: check DEST_BRANCH
+      run: echo "$DEST_BRANCH"
 
   create-pull-request:
     name: Create pull request
