@@ -23,8 +23,6 @@ jobs:
     name: Set destination branch
     needs: test
     runs-on: ubuntu-latest
-    env:
-      DEST_BRANCH: master
     outputs:
       dest_branch: ${{ env.DEST_BRANCH }}
     steps:
@@ -61,7 +59,7 @@ jobs:
       with:
         source_branch: ""                                                             # If blank, default: triggered branch
         destination_branch: ${{ needs.set-destination-branch.outputs.dest_branch }}   # If blank, default: master
-        pr_title: "Pulling ${{ github.ref }} into part-2-two"                         # Title of pull request
+        pr_title: "Pulling ${{ github.ref }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"    # Title of pull request
         pr_body: ":robot: *An auto-generated PR*"                                     # Full markdown support, requires pr_title to be set
         pr_label: "auto-pr,auto-merge"                                                # Comma-separated list (no spaces)
         github_token: ${{ steps.generate-token.outputs.token }}
