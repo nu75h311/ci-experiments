@@ -22,10 +22,13 @@ jobs:
   get-ref-branch-name:
     name: Get ref branch name
     runs-on: ubuntu-latest
+    outputs:
+      ref_branch: ${{ steps.getname.outputs.branch }}
     env:
       GITHUB_BRANCH: ${{ github.ref }}
     steps:
     - name: Get only the name
+      id: getname
       run: |
         echo "::set-output name=ref_branch::${GITHUB_BRANCH#refs/heads/}"
 
