@@ -50,6 +50,8 @@ jobs:
         private_key: ${{ secrets.APP_PRIVATE_KEY }}
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Check origin
+      run: git remote show origin
     - name: Dump needs context
       env:
         NEEDS_CONTEXT: ${{ toJson(needs) }}
