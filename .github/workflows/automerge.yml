@@ -1,7 +1,7 @@
 name: Merge pull request
 on:
   pull_request:
-    branches: 'part-2*'
+    branches: 'part-5*'
 jobs:
   automerge:
     runs-on: ubuntu-latest

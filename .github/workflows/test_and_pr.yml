@@ -52,20 +52,24 @@ jobs:
       with:
         app_id: ${{ secrets.APP_ID }}
         private_key: ${{ secrets.APP_PRIVATE_KEY }}
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Check origin
-      run: git remote show origin
     - name: Dump needs context
       env:
         NEEDS_CONTEXT: ${{ toJson(needs) }}
       run: echo "$NEEDS_CONTEXT"
-    - name: Create pull request
-      uses: repo-sync/pull-request@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
-        source_branch: ""                                                             # If blank, default: triggered branch
-        destination_branch: ${{ needs.set-destination-branch.outputs.dest_branch }}   # If blank, default: master
-        pr_title: "Pulling ${{ github.ref }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"    # Title of pull request
-        pr_body: "Update from ${{ github.ref }} :robot: auto-generated"               # Full markdown support, requires pr_title to be set
-        pr_label: "auto-pr,auto-merge"                                                # Comma-separated list (no spaces)
-        github_token: ${{ steps.generate-token.outputs.token }}
+        ref: ${{ needs.set-destination-branch.outputs.dest_branch }}
+    - name: Reset promotion branch
+      run: |
+        git fetch origin ${{ github.ref }}:${{ github.ref }}
+        git reset --hard ${{ github.ref }}
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ steps.generate-token.outputs.token }}
+        branch: temp-promotion-branch
+        title: "Pulling ${{ github.ref }} into ${{ needs.set-destination-branch.outputs.dest_branch }}"
+        body: "Update from ${{ github.ref }} :robot: auto-generated"
+        commit-message: "Update from ${{ github.ref }}"
+        labels: auto-pr, auto-merge
