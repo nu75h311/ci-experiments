@@ -33,7 +33,7 @@ jobs:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
     - name: If branch is part-1
-      if: startsWith(github.ref, 'part-1')
+      if: contains(github.ref, 'part-1')
       run: |
         echo "::set-env name=DEST_BRANCH::part-2-two"
     - name: check DEST_BRANCH
