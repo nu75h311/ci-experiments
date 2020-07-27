@@ -1,0 +1,42 @@
+name: Build, test and create PR
+on:
+  push:
+    branches: 'part-1*'
+
+jobs:
+
+  build:
+    name: Maven test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Maven test
+      run: mvn -B test --file pom.xml
+
+  create-pull-request:
+    name: Create pull request
+    runs-on: ubuntu-latest
+    steps:
+    - name: Generate app token
+      uses: tibdex/github-app-token@v1
+      id: generate-token
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.APP_PRIVATE_KEY }}
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Create pull request
+      uses: repo-sync/pull-request@v2
+      with:
+        source_branch: ""                                       # If blank, default: triggered branch
+        destination_branch: "part-2-two"                        # If blank, default: master
+        pr_title: "Pulling ${{ github.ref }} into part-2-two"   # Title of pull request
+        pr_body: ":crown: *An automated PR*"                    # Full markdown support, requires pr_title to be set
+        pr_label: "auto-pr"                                     # Comma-separated list (no spaces)
+        github_token: ${{ steps.generate-token.outputs.token }}
