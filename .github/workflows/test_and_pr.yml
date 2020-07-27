@@ -47,7 +47,6 @@ jobs:
   create-pull-request:
     name: Create pull request
     needs:
-      - get-ref-branch-name
       - set-destination-branch
     runs-on: ubuntu-latest
     steps:
